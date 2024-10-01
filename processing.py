@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import itertools
 
 def score_deck(deck: str,
                seq1: str,
@@ -28,7 +29,29 @@ def calculate_winner(p1_cards: int,
         tricks_draw = 1
     return cards_winner, cards_draw, tricks_winner, tricks_draw
 
-def sum_games(data: str):
+def play_one_deck(deck: str,
+                  data: str):
+    sequences = ['000', '001', '010', '011', '100', '101', '110', '111']
+    combinations = itertools.product(sequences, repeat=2)
+    p2_wins_cards = pd.DataFrame(columns=sequences, index=sequences)
+    p2_wins_tricks = pd.DataFrame(columns=sequences, index=sequences)
+    draws_cards = pd.DataFrame(columns=sequences, index=sequences)
+    draws_tricks = pd.DataFrame(columns=sequences, index=sequences)
+
+    for seq1, seq2 in combinations:
+        cards_winner, cards_draw, tricks_winner, tricks_draw = calculate_winner(score_deck(deck, seq1, seq2))
+        p2_wins_cards.at[seq1, seq2] = cards_winner
+        draws_cards.at[seq1, seq2] = cards_draw
+        p2_wins_tricks.at[seq1, seq2] = tricks_winner
+        draws_tricks.at[seq1, seq2] = tricks_draw
+    
+    deck_name = str(int(deck, 2))
+    np.save(f'{data}cards_win/{deck_name}.npy', p2_wins_cards, allow_pickle = True)
+    np.save(f'{data}tricks_win/{deck_name}.npy', p2_wins_tricks, allow_pickle = True)
+    np.save(f'{data}cards_draw/{deck_name}.npy', draws_cards, allow_pickle = True)
+    np.save(f'{data}tricks_draw/{deck_name}.npy', draws_tricks, allow_pickle = True)
+
+def sum_games(data: str, average: bool):
     '''Take all of the arrays in the /data folder, and add them together/divide by number of files to get the average'''
     files = [file for file in os.listdir(data) if os.path.isfile(os.path.join(data, file))] # iterate through /data directory, only process files
     games_total = None # where the sum of the games is going
@@ -40,7 +63,9 @@ def sum_games(data: str):
         else:
             games_total += game
     num_games = len(files)
-    return np.divide(games_total, num_games) # divide each individual element by the number of games played
+    if average:
+        return np.divide(games_total, num_games)
+    return games_total # divide each individual element by the number of games played
 
 def iterate (deck: ):
     pass
