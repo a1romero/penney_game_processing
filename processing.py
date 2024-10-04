@@ -106,7 +106,6 @@ def play_one_deck(deck: str,
     np.save(f'{data}cards_draw/{deck_name}.npy', draws_cards, allow_pickle = True)
     np.save(f'{data}tricks_draw/{deck_name}.npy', draws_tricks, allow_pickle = True)
 
-
 def sum_games(data: str, average: bool):
     '''Take all of the arrays in the specified folder, and add them together/divide by number of files to get the average 
     if we are looking at win/loss (boolean is True). We don't find the average if we are looking at draws as we just want 
@@ -125,3 +124,26 @@ def sum_games(data: str, average: bool):
         return np.divide(games_total, num_games)
     return games_total # divide each individual element by the number of games played
 
+# Functions for testing
+
+def shuffle_deck(seed:None):
+    '''Generates a single shuffled deck'''
+    rng = np.random.default_rng(seed = seed)
+    deck = np.ndarray.flatten((np.stack((np.ones(26), np.zeros(26)), axis= 0).astype(int)))
+    rng.shuffle(deck)
+    return ''.join(map(str, deck))
+
+def play_n_games(n, data):
+    for i in range(n):
+        deck = shuffle_deck(i)
+        play_one_deck(data = 'data/', deck = deck)
+
+    filename = ['cards_win/', 'cards_draw/', 'tricks_win/', 'tricks_draw/']
+    results = {}
+
+    for folder in filename:
+        if folder == 'cards_win/' or folder == 'tricks_win/':
+            results[folder] = sum_games(f'{data}{folder}', True)
+        elif folder == 'cards_draw/' or folder == 'tricks_draw/':
+            results[folder] = sum_games(f'{data}{folder}', False)
+    return results
