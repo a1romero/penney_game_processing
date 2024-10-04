@@ -93,7 +93,8 @@ def play_one_deck(deck: str,
     draws_tricks = pd.DataFrame(columns=sequences, index=sequences)
 
     for seq1, seq2 in combinations:
-        cards_winner, cards_draw, tricks_winner, tricks_draw = calculate_winner(score_deck(deck, seq1, seq2))
+        p1_cards, p2_cards, p1_tricks, p2_tricks = score_deck(deck, seq1, seq2)
+        cards_winner, cards_draw, tricks_winner, tricks_draw = calculate_winner(p1_cards, p2_cards, p1_tricks, p2_tricks)
         p2_wins_cards.at[seq1, seq2] = cards_winner
         draws_cards.at[seq1, seq2] = cards_draw
         p2_wins_tricks.at[seq1, seq2] = tricks_winner
