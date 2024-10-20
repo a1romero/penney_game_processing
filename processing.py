@@ -23,7 +23,8 @@ def score_deck(deck: str,
     p2_tricks = 0
     
     i = 0
-    while i < len(deck) - 2:
+    length = len(deck) - 2
+    while i < length:
         pile += 1
         current_sequence = deck[i:i+3]
         if current_sequence == seq1:
